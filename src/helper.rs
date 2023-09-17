@@ -14,7 +14,7 @@ pub fn display_help_menu() {
     println!("  -e, --exclude EXCLUDE   {}", "Extensions to exclude [ex: --exclude php,aspx]".bright_white());
     println!("  -o, --output OUTPUT     {}", "Output file name [by default it is 'domain.txt']".bright_white());
     println!("  -O, --output_path       {}", "Path to output the results".bright_white());
-    println!("  -r, -r                  {}", "Rate limit in milliseconds between requests".bright_white());
+    println!("  -r, --rate_limit        {}", "Rate limit in milliseconds between requests".bright_white());
     println!("  -p, --placeholder PH    {}", "Placeholder string to add after the parameter name (default: FUZZ)".bright_white());
     println!("  -h, --help HELP         {}", "Print out this help menu".bright_white());
     println!();
