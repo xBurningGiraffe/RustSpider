@@ -1,10 +1,16 @@
+// Module for HTTP requests
+
 use rand::prelude::SliceRandom;
 use reqwest;
-use tokio::time::{sleep, Duration};
 
-pub async fn connector(url: String, rate_limit: u64) -> Result<reqwest::Response, reqwest::Error> {
+use crate::common_types::SharedRateLimiter;
+
+// type DirectRateLimiter = RateLimiter<Duration, NotKeyed, DefaultClock>;
+
+pub async fn connector(url: String, rate_limiter: &SharedRateLimiter) -> Result<reqwest::Response, reqwest::Error> {
+    
     let user_agent_list = vec![
-        // Chrome
+    // Chrome
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36",
     "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36",
     "Mozilla/5.0 (Windows NT 5.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36",
@@ -29,16 +35,18 @@ pub async fn connector(url: String, rate_limit: u64) -> Result<reqwest::Response
     "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)",
     "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)",
     "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)"
-
     ];
+
+    rate_limiter.until_ready().await;
+
+    // Select random user agent from user_agent_list
     let chosen_user_agent = user_agent_list.choose(&mut rand::thread_rng()).unwrap();
+    // Create HTTP client
     let client = reqwest::Client::builder()
         .user_agent(chosen_user_agent.to_string())
         .build()?;
+    // Send HTTP GET request
     let response = client.get(url).send().await?;
-
-    //  Rate limiting
-    sleep(Duration::from_millis(rate_limit)).await;
 
     Ok(response)
 
